@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"   
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"   # Map port 80 inside container → 3000 on your machine
+    depends_on:
+      - backend
