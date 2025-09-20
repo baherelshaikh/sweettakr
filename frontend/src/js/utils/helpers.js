@@ -234,6 +234,27 @@ export const throttle = (func, limit) => {
     };
 };
 
+export const showToast = (message, type = 'info') => {
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    document.body.removeChild(toast);
+                }
+            }, 300);
+        }, 3000);
+    }
+
 // Array Utilities
 export const groupBy = (array, key) => {
     return array.reduce((result, currentValue) => {
@@ -281,9 +302,6 @@ export const createError = (message, code = 'UNKNOWN_ERROR') => {
 
 export const handleError = (error, context = 'Unknown') => {
     console.error(`Error in ${context}:`, error);
-    
-    // You could integrate with error reporting service here
-    // Example: Sentry.captureException(error);
     
     return {
         message: error.message || 'An unexpected error occurred',

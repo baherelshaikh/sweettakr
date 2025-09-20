@@ -1,14 +1,13 @@
-# Step 1: Build frontend
+# Stage 1: Build frontend
 FROM node:18 AS build
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+RUN npm install --legacy-peer-deps 
 COPY . .
 RUN npm run build
 
-# Step 2: Serve with nginx
+# Stage 2: Serve with Nginx
 FROM nginx:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

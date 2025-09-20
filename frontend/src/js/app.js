@@ -12,7 +12,8 @@ import {
     validateName, 
     validatePhone,
     getAuthToken,
-    isMobile 
+    isMobile,
+    showToast 
 } from './utils/helpers.js';
 import { API_CONFIG } from './utils/constants.js';
 
@@ -121,12 +122,9 @@ class App {
     }
 
     setupEventListeners() {
-        console.log(this.elements.loginForm);
         // Auth form submissions
         this.elements.loginForm?.addEventListener('submit', (e) => {
-            console.log('login form submitted');
             e.preventDefault();
-            console.log('form data', e.target);
             this.handleLogin(new FormData(e.target));
         });
 
@@ -189,10 +187,7 @@ class App {
         // });
 
         window.addEventListener('resize', () => {
-            console.log("resize event", window.innerWidth, window.innerHeight)
-            // if (window.innerWidth < 768) {
-                this.handleResize();
-            // } 
+            this.handleResize();
         });
     }
 
@@ -296,7 +291,6 @@ class App {
     // User interface updates
     updateCurrentUserInfo() {
         const currentUser = appState.getState().user;
-        console.log("currentUser",currentUser)
         if (!currentUser) return;
 
         if (this.elements.currentUserName) {
@@ -320,8 +314,6 @@ class App {
                 
                 this.elements.currentUserAvatar.appendChild(img);
             }
-            console.log("currentUser.avatar",currentUser.profile_picture, userService.getAvatarUrl(currentUser))
-            // this.elements.currentUserAvatar.src = userService.getAvatarUrl(currentUser);
         }
     }
 
@@ -357,12 +349,10 @@ class App {
 
         try {
             this.elements.userSearchResults.innerHTML = '<div class="loading">Searching...</div>';
-            console.log('Searching users for query:', query);
             const users = await userService.searchUsers(query);
             this.renderUserSearchResults(users);
             
         } catch (error) {
-            console.error('Error searching users:', error);
             this.elements.userSearchResults.innerHTML = '<div class="error">Search failed</div>';
         }
     }
@@ -378,13 +368,6 @@ class App {
         users.forEach(user => {
             const userItem = userService.createUserListItem(user, async (selectedUser) => {
                 const chat = await this.startChatWithUser(selectedUser)
-                // if (chat) {
-                //     console.log("chaaaat",chat)
-                //     const chatElement = chatListRenderer.container.querySelector(`[data-chat-id="${chat.id}"]`);
-                //     chatListRenderer.selectChat(chatElement);
-                //     // chatListRenderer.openChat(chatElement); 
-                // }
-                // chatListRenderer.openChat(chat);
             });
             this.elements.userSearchResults.appendChild(userItem);
         });
@@ -393,9 +376,7 @@ class App {
     async startChatWithUser(user) {
         try {
             this.closeNewChatModal();
-            console.log('Starting chat with user:', user);
             const chat = await chatService.createChat(user);
-            console.log('Created chat:', chat)
             chatListRenderer.selectChat(chat)
             chatListRenderer.openChat(chat);
             appState.setCurrentChat(chat);
@@ -432,7 +413,7 @@ class App {
     // Settings
     openSettings() {
         // Implement settings modal
-        console.log('Settings clicked - implement settings modal');
+        // console.log('Settings clicked - implement settings modal');
     }
 
     // Utility methods
@@ -467,50 +448,15 @@ class App {
     }
 
     showError(message) {
-        this.showToast(message, 'error');
+        showToast(message, 'error');
     }
 
     showSuccess(message) {
-        this.showToast(message, 'success');
+        showToast(message, 'success');
     }
-
-    showToast(message, type = 'info') {
-        const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-        
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 100);
-        
-        setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    document.body.removeChild(toast);
-                }
-            }, 300);
-        }, 3000);
-    }
-
-    
-    // renderView() {
-
-    //     if (currentChat === null) {
-    //         this.elements.sidebar.classList.remove('hidden');
-    //         this.elements.mainChat.classList.add('hidden');
-    //     } else {
-    //         this.elements.sidebar.classList.add('hidden')
-    //         this.elements.mainChat.classList.remove('hidden');
-    //     }
-    // }
 
     handleResize() {
         const currentChat = appState.getState().currentChat;
-        console.log("this.currentChat appstate",currentChat)
-        console.log("isMobile()",isMobile())
         // Handle mobile responsiveness
         if (isMobile()) {
             if (currentChat === null) {
@@ -528,11 +474,6 @@ class App {
             document.body.classList.remove('mobile');
         }
     }
-
-    // cleanup() {
-    //     // Cleanup before page unload
-    //     // authService.logout();
-    // }
 }
 
 // Initialize app when DOM is loaded

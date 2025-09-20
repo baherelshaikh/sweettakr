@@ -99,7 +99,6 @@ class ChatListRenderer {
         const otherUser = chat.otherUser || {};
         let currentUser = localStorage.getItem("sweettakr_user_data") ? JSON.parse(localStorage.getItem("sweettakr_user_data")) : null;
         currentUser.id = parseInt(currentUser.user_id)
-        console.log("chat",currentUser?.id)
 
         const name = () => {
             if (chat.members && chat.is_group === false) {
@@ -114,7 +113,6 @@ class ChatListRenderer {
 
         const is_active =  () => {
             if (chat.members && chat.is_group === false) {
-                console.log("m",chat.members,currentUser)
                 const member = chat.members.find(m => m.id !== currentUser?.id);
                 return member ? member.is_active : false;
             }
@@ -124,7 +122,6 @@ class ChatListRenderer {
         const chat_image = () => {
             if (chat.members && chat.is_group === false) {
                 const member = chat.members.find(m => m.id !== currentUser?.id);
-                console.log("p",member.profile_picture)
                 return member ? member.profile_picture : null;
             } else if (chat.is_group && chat.profile_picture) {
                 return chat.profile_picture;
@@ -141,7 +138,6 @@ class ChatListRenderer {
         this.unreadCounts.push({ chatId: chat.id, unreadCount: chat.unreadCount || 0 })
         
         const unreadCount = this.unreadCounts.find(c => c.chatId === chat.id)?.unreadCount || 0;
-        console.log("unreadCounttt",unreadCount)
         const isOnline =  is_active() || otherUser.id ? userService.isUserOnline(otherUser.id) : false;
         const avatar = chat_image() || otherUser.profile_picture || null;
 
@@ -181,7 +177,6 @@ class ChatListRenderer {
         
         // Load messages for this chat
         chatService.loadChatMessages(chat.id).catch(console.error);
-        // console.log("messages loaded for chat", appState.getMessages(chat.id))
         // Mark chat as read
         chatService.markChatAsRead(chat.id).catch(console.error);
         
@@ -195,13 +190,11 @@ class ChatListRenderer {
     }
 
     openChat(chat) {
-        console.log("ccchat",chat)
         if (chatService.loadingChats.has(chat.id)) {
                 
                 return; // Already loading
             }
 
-        console.log('Opening chat with user:', chat);
         let currentUser = localStorage.getItem("sweettakr_user_data") ? JSON.parse(localStorage.getItem("sweettakr_user_data")) : null;
         currentUser.id = parseInt(currentUser.user_id)
         let member;
@@ -232,11 +225,9 @@ class ChatListRenderer {
                 }
             }
             const chat_name = name() || chat.displayName;
-            console.log("n", chat_name)
 
             const is_active =  () => {
                 if (chat.members && chat.is_group === false) {
-                    console.log("m",chat.members,currentUser)
                     member = chat.members.find(m => m.id !== currentUser?.id);
                     return member ? member.is_active : false;
                 }
@@ -246,14 +237,12 @@ class ChatListRenderer {
             const chat_image = () => {
                 if (chat.members && chat.is_group === false) {
                     member = chat.members.find(m => m.id !== currentUser?.id);
-                    console.log("p",member.profile_picture)
                     return member ? member.profile_picture : null;
                 } else if (chat.is_group && chat.profile_picture) {
                     return chat.profile_picture;
                 }
             }
             const chat_image_url = chat_image() || chat.avatar;
-            console.log("img",chat_image_url)
 
             if (nameEl) nameEl.textContent = chat_name || "Unknown Chat";
             if (statusEl) statusEl.textContent = is_active() ? "Online" : `Last seen ${userService.formatLastSeen(member? member : chat)}`;
@@ -269,66 +258,8 @@ class ChatListRenderer {
             }
 
             this.clearUnreadCount(chat.id);
-
-            // // Clear old messages (or load messages here)
-            // const messagesContainer = document.getElementById("messages-container"); //////// load messages here
-            // if (messagesContainer) {
-            //     messagesContainer.innerHTML = ""; // ready to append messages
-            // }
         }
-        //  // Hide the empty chat
-        // document.getElementById("empty-chat").classList.add("hidden");
-
-        // // Show the active chat
-        // const activeChat = document.getElementById("active-chat");
-        // activeChat.classList.remove("hidden");
-
-        // // Fill existing placeholders inside active-chat
-        // const chatUsername = activeChat.querySelector(".chat-username");
-        // const chatStatus = activeChat.querySelector(".chat-status");
-        // const chatAvatar = activeChat.querySelector(".chat-avatar");
-        // console.log(chatUsername, chatStatus, chatAvatar, user)
-
-        // if (chatUsername) chatUsername.textContent = user.name;
-        // if (chatStatus) chatStatus.textContent = user.is_active? "Online" : "Offline";
-        // if (chatAvatar) chatAvatar.src = user.profile_picture || "default-avatar.png";
-        // -----------------
-        // // Step 1: Hide the empty chat
-        // const emptyChat = document.querySelector('.empty-chat');
-        // if (emptyChat) {
-        //     emptyChat.classList.add('hidden');
-        // }
-
-        // // Step 2: Show the active chat
-        // const activeChat = document.querySelector('.active-chat');
-        // if (activeChat) {
-        //     activeChat.classList.remove('hidden');
-        // }
-
-        // // Step 3: Fill active chat with user data
-        // if (activeChat) {
-        //     activeChat.innerHTML = `
-        //         <div class="chat-header">
-        //             <div class="avatar">
-        //                 ${user.profile_picture 
-        //                     ? `<img src="${user.profile_picture}" alt="${user.name}" />`
-        //                     : `<span>${user.name.charAt(0).toUpperCase()}</span>`
-        //                 }
-        //             </div>
-        //             <div class="chat-user-details">
-        //                 <div class="chat-user-name">${user.name}</div>
-        //                 <div class="chat-user-phone">${user.phone_number}</div>
-        //             </div>
-        //         </div>
-        //         <div class="chat-messages">
-        //             <!-- messages will be appended here -->
-        //         </div>
-        //         <div class="chat-input">
-        //             <input type="text" placeholder="Type a message..." />
-        //             <button>Send</button>
-        //         </div>
-        //     `;
-        // }
+        
     }
 
     updateSelectedChat() {
@@ -362,7 +293,6 @@ class ChatListRenderer {
             const chats = appState.getState().chats;
 
             const chat = this.unreadCounts.find(c => c.chatId === message.chat_id);
-            console.log("chaaaat",chat)
             if (!chat) {
                 this.unreadCounts.push({
                     chat_id: message.chat_id,
@@ -371,9 +301,6 @@ class ChatListRenderer {
             } else {
                 chat.unreadCount++;
             }
-            // console.log("chattt",chat)
-            // chat.unreadCount = (chat.unreadCount || 0) + 1;
-            console.log("selected chat",chat)
             this.incrementUnreadCount(chatElement, chat? chat.unreadCount : 1);
         }
 
@@ -409,16 +336,6 @@ class ChatListRenderer {
             chatElement.appendChild(unreadElement);
         }
 
-        // if(chatId) {
-        //     const chat = this.chats.find(c => c.id === chatId);
-        //     if(chat) {
-        //         newUnreadCount = chat.unreadCount
-        //     }
-        // }
-        
-        // console.log(numericValue)
-        // const currentCount = parseInt(unreadElement.textContent) || 0;
-        // const newCount = currentCount + 1;
         unreadElement.textContent = unreadCount > 99 ? '99+' : unreadCount;
     }
 

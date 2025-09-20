@@ -1,14 +1,22 @@
-version: "3.9"
-
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
-      - "5000:5000"   
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    command: npm start
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "5173:80"   # Map port 80 inside container → 3000 on your machine
+      - "3000:80" 
+    volumes:
+      - ./frontend:/app
     depends_on:
       - backend
+

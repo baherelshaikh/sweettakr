@@ -19,10 +19,6 @@ class UserService {
         }
 
         const trimmedQuery = query.trim();
-        
-        // Check cache first
-        console.log("chats", appState.getState().chats)
-        // const chats = appState.getState().chats || [];
 
         return new Promise((resolve) => {
             this.debouncedSearch(trimmedQuery, resolve);
@@ -32,12 +28,10 @@ class UserService {
     async _performSearch(query, callback) {
         try {
             let results = [];
-            console.log('Performing user search for query:', query);
             // Determine search type based on query format
             if (validatePhone(query)) {
                 results = await apiClient.searchUsersByPhone(query);
                 results = results ? results.data : [];
-                console.log('data:', results);
             } else if (validateName(query)) {
                 results = await apiClient.searchUsersByName(query);
             } else {
@@ -209,7 +203,6 @@ class UserService {
 
     // Helper methods for UI components
     createUserListItem(user, onClick = null) {
-        console.log("users",user)
         const userItem = document.createElement('div');
         userItem.className = 'user-item';
         userItem.innerHTML = `

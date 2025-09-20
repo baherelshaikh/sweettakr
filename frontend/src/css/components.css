@@ -222,6 +222,8 @@ input[type="tel"]:focus {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    flex-grow: 1;
 }
 
 .chat-meta {
@@ -229,6 +231,8 @@ input[type="tel"]:focus {
     align-items: center;
     justify-content: space-between;
     gap: var(--spacing-sm);
+    display: flex;
+    flex-grow: 2;
 }
 
 .last-message {

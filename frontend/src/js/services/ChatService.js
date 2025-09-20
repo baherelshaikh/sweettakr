@@ -28,7 +28,6 @@ class ChatService {
                         ...chat,
                         unreadCount: countData || 0
                     });
-                    console.log("unreadCount", countData)
                 } catch (err) {
                     console.error(`Error fetching unread count for chat ${chat.id}:`, err);
                     ChatsWithUnreadCount.push({
@@ -37,7 +36,6 @@ class ChatService {
                     });
                 }
             }
-            console.log("ChatsWithUnreadCount", ChatsWithUnreadCount)
             const processedChats = ChatsWithUnreadCount.map(chat => this.processChat(chat));
             appState.setChats(processedChats);
             
@@ -61,11 +59,6 @@ class ChatService {
                 return existingChat;
             }
 
-            // const chatData = {
-            //     participants: [currentUser.user_id, user.id],
-            //     type: 'direct',
-            //     name: chatName
-            // };
             const chatId = uuidv4();
             const chatData = {
                 type: 'direct',
@@ -82,8 +75,6 @@ class ChatService {
                 messages: []
             }
             
-            // const newChat = await apiClient.createChat(chatData);
-            // const processedChat = this.processChat(newChat);
             const processedChat = this.processChat(chatData);
             appState.addChat(processedChat);
             
@@ -98,20 +89,12 @@ class ChatService {
     }
 
     async loadChatMessages(chatId, options = {}) {
-        try {
-            // if (!this.loadingChats.has(chatId)) {
-            //     this.loadingChats.add(chatId);
-            //     console.log("loading chat messages for chatId:", chatId)
-            //     return; // Already loading
-            // }
-            
-            
+        try {            
             const {data} = await apiClient.getChatMessages(chatId, options);
             const messages = data
             const processedMessages = messages.map(msg => this.processMessage(msg));
 
             appState.setMessages(chatId, processedMessages);
-            console.log('Fetched messages:', appState.getMessages(chatId));
             
             // Mark messages as delivered
             this.markMessagesAsRead(processedMessages);
@@ -135,7 +118,6 @@ class ChatService {
 
             // Create temporary message for immediate UI feedback
             const tempMessage = this.createTempMessage(chatId, messageType, content, currentUser);
-            console.log("tempMessage",tempMessage)
             appState.addMessage(tempMessage);
 
 
@@ -150,7 +132,6 @@ class ChatService {
             try {
                 const sentMessage = await socketClient.sendMessage(messageData);
 
-                console.log('Message sent via socket:', sentMessage);
                 // Update temp message with real data
                 appState.updateMessage(tempMessage.id, {
                     ...sentMessage,
@@ -177,11 +158,7 @@ class ChatService {
 
     async markChatAsRead(chatId) {
         try {
-            console.log("same chatId:",chatId)
             const messages = appState.getMessages(chatId);
-            // const {data} = await apiClient.getChatMessages(chatId);
-            // const messages = data;
-            // console.log('Marking chat as read, messages:', messages);
             const unreadMessages = messages.filter(msg => 
                 msg.sender_user_id !== appState.getState().user?.user_id && 
                 msg.status !== 'read'
@@ -190,7 +167,6 @@ class ChatService {
             if (unreadMessages.length === 0) return;
 
             const lastMessage = messages[messages.length - 1];
-            console.log("lastMessage",lastMessage)
             if (lastMessage && lastMessage.seq) {
                 await socketClient.markChatReadUpTo(chatId, lastMessage.seq);
             }
@@ -234,7 +210,6 @@ class ChatService {
 
     processMessage(message) {
         const currentUser = appState.getState().user;
-        // console.log("currentUser", currentUser, message.sender_user_id)
         
         return {
             ...message,
@@ -261,7 +236,6 @@ class ChatService {
     findExistingDirectChat(participantId) {
         const currentUser = appState.getState().user;
         const chats = appState.getState().chats;
-        console.log("here", chats,parseInt(participantId), parseInt( currentUser?.user_id))
         
         return chats.find(chat => 
             // chat.members && 

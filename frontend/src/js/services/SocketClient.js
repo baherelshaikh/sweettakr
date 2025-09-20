@@ -19,72 +19,25 @@ class SocketClient {
         this.token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
     }
 
-    // connect() {
-    //     return new Promise((resolve, reject) => {
-    //         const token = getAuthToken();
-    //         if (!token) {
-    //             reject(new Error('No authentication token found'));
-    //             return;
-    //         }
-    //         console.log('Connecting to socket with token:', token);
-            
-    //         try {
-    //             console.log('socket link', API_CONFIG.SOCKET_URL, token);
-    //             this.socket = io(API_CONFIG.SOCKET_URL, {
-    //                 auth: {
-    //                     token: token
-    //                 },
-    //                 transports: ['websocket', 'polling'], // fallback options
-    //                 reconnection: true, // Enable built-in reconnection
-    //                 reconnectionAttempts: 5, // Limit reconnection attempts
-    //                 reconnectionDelay: 1000, // Delay between attempts
-    //             });
-
-    //             this.setupEventListeners();
-                
-    //             this.socket.on('connect', () => {
-    //                 console.log('Socket connected:', this.socket.id);
-    //                 this.isConnected = true;
-    //                 this.reconnectAttempts = 0;
-    //                 appState.setConnectionStatus(true);
-    //                 resolve();
-    //             });
-
-    //             this.socket.on('connect_error', (error) => {
-    //                 console.error('Socket connection error:', error);
-    //                 this.isConnected = false;
-    //                 appState.setConnectionStatus(false);
-    //                 reject(error);
-    //             });
-
-    //         } catch (error) {
-    //             reject(error);
-    //         }
-    //     });
-    // }
-
     connect() {
         if (!this.token) {
             console.error('No authentication token found');
             return;
         }
 
-        console.log('Connecting to socket with token:', this.token);
 
         try {
-            console.log('socket link', API_CONFIG.SOCKET_URL, this.token);
             this.socket = io(API_CONFIG.SOCKET_URL, {
                 auth: { token: JSON.parse(this.token) },
                 transports: ['websocket', 'polling'], // fallback options
                 reconnection: true,                  // Enable built-in reconnection
-                reconnectionAttempts: 5,             // Limit reconnection attempts
-                reconnectionDelay: 1000,             // Delay between attempts
+                reconnectionAttempts: 5,             
+                reconnectionDelay: 1000,             
             });
 
             this.setupEventListeners();
 
             this.socket.on('connect', () => {
-                console.log('Socket connected:', this.socket.id);
                 this.isConnected = true;
                 this.reconnectAttempts = 0;
                 appState.setConnectionStatus(true);
@@ -128,28 +81,6 @@ class SocketClient {
             }
         });
 
-        // Message events
-        // this.socket.on(SOCKET_EVENTS.MESSAGE_NEW, (message) => {
-        //     const currentUser = localStorage.getItem(STORAGE_KEYS.USER_DATA)? JSON.parse(localStorage.getItem(STORAGE_KEYS.USER_DATA)) : null;
-
-        //     if (message.sender_user_id !== currentUser.user_id) { 
-        //         appState.addMessage(message);                           //------------------------------------------------------
-        //         this.playNotificationSound(message);
-        //         return;
-        //     }
-        //     console.log("MESSAGE_NEW", message,appState.getState().currentChat.id);
-        //     if (message.chat_id === appState.getState().currentChat.id) {
-        //         this.socket.emit(SOCKET_EVENTS.RECEIPT_DELIVERED, { messageId: message.id }, (response) => {
-        //             if (response?.ok) {
-        //                 appState.updateMessage(message.id, { 
-        //                     status: 'delivered',
-        //                     deliveredAt: response.at,
-        //                     deliveredBy: currentUser.user_id 
-        //                 });
-        //             }
-        //         });
-        //     }
-        // });
         this.socket.on(SOCKET_EVENTS.MESSAGE_NEW, (message) => {
             const currentUser = localStorage.getItem(STORAGE_KEYS.USER_DATA)
                 ? JSON.parse(localStorage.getItem(STORAGE_KEYS.USER_DATA))
@@ -160,7 +91,6 @@ class SocketClient {
                 appState.addMessage(message);
                 this.playNotificationSound(message);
 
-                // console.log("MESSAGE_NEW (other user)", message, appState.getState().currentChat.id);
                 // If this chat is currently open, mark as delivered
                 if (message.chat_id === appState.getState().currentChat?.id) {
                     this.markRead(message.id)
@@ -168,15 +98,11 @@ class SocketClient {
 
                 return; // done
             }
-
-            // Message from current user (just log/debug)
-            console.log("MESSAGE_NEW (own message)", message, appState.getState().currentChat.id);
         });
 
 
         // Receipt events
         this.socket.on(SOCKET_EVENTS.RECEIPT_DELIVERED_RECEIVED, ({ messageId, byUserId, at }) => {
-            console.log("RECEIPT_DELIVERED_RECEIVED", messageId, byUserId, at);
             appState.updateMessage(messageId, { 
                 status: 'delivered',
                 deliveredAt: at,
@@ -185,7 +111,6 @@ class SocketClient {
         });
 
         this.socket.on(SOCKET_EVENTS.RECEIPT_READ_RECEIVED, ({ messageId, byUserId, at }) => {
-            console.log("RECEIPT_READ_RECEIVED::", messageId, byUserId, at);
             appState.updateMessage(messageId, { 
                 status: 'read',
                 readAt: at,
@@ -196,7 +121,6 @@ class SocketClient {
         // Batch read receipts
         this.socket.on(SOCKET_EVENTS.CHAT_READ_UP_TO_RECEIVED, ({ chatId, byUserId, uptoSeq }) => {
             const messages = appState.getMessages(chatId);
-            console.log("uptoseq",uptoSeq)
             messages.forEach(message => {
                 if (message.seq <= uptoSeq && message.sender_user_id !== byUserId) {
                     appState.updateMessage(message.id, { 
@@ -210,15 +134,11 @@ class SocketClient {
 
         this.socket.on(SOCKET_EVENTS.USER_ONLINE, ({ userId }) => {
             const userChats = appState.getState().chats;
-            console.log("USER_ONLINE", userId, userChats);
-            // const userChatsSet = new Set(userChats);
-            // const messages = appState.getMessages(chatId);
+
             userChats.forEach(chat => {
-                // if that user is a member of the chat mark all messages as deliverd ..........
                 if(this._isAChatMember(chat, userId)){
                     const messages = appState.getMessages(chat.id);
                     const sendingMessages = messages.filter(message => message.status === 'sending')
-                    // console.log("uptoseq",uptoSeq)
                     sendingMessages.forEach(message => {
                         // if (message.seq <= uptoSeq && message.sender_user_id !== byUserId) {
                             appState.updateMessage(message.id, { 
@@ -242,7 +162,7 @@ class SocketClient {
     _isAChatMember(chat, userId) {
         if((chat.members?.length === 2 &&
             chat.members?.find(p => p.id === parseInt(userId)) !== undefined )|| 
-            chat.contactId === participantId) {
+            chat.contactId === parseInt(userId)) {
             return true;
         }else{
             return false;
@@ -257,9 +177,6 @@ class SocketClient {
 
         setTimeout(() => {
             this.reconnectAttempts++;
-            // this.connect().catch(() => {
-            //     this.handleReconnection();
-            // });
             this.connect();
         }, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
     }

@@ -178,8 +178,6 @@ class AppState {
         const chatId = message.chat_id;
         const messages = this.state.messages.get(chatId) || [];
         const updatedMessages = [...messages, message];
-
-        console.log('updatedMessages', updatedMessages, "chatId:", chatId, "message:", message)
         
         this.setMessages(chatId, updatedMessages); // 1111111111
         
@@ -322,7 +320,6 @@ class AppState {
 
     handleResize() {
         const currentChat = this.state.currentChat;
-            console.log("this.currentChat",currentChat)
             const sidebar = document.querySelector('.sidebar');
             const mainChat = document.querySelector('.main-chat');
             const backBtn = document.querySelector('.back-btn');

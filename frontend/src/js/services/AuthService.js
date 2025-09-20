@@ -42,61 +42,6 @@ class AuthService {
         this.isInitialized = true;
     }
 
-    // async register(userData) {
-    //     try {
-    //         // Validate input
-    //         const validationError = this.validateRegistrationData(userData);
-    //         if (validationError) {
-    //             throw new Error(validationError);
-    //         }
-
-    //         const response = await apiClient.register({
-    //             name: userData.name.trim(),
-    //             phone_number: userData.phone.trim(),
-    //             password_hash: userData.password
-    //         });
-
-    //         if (response.user && response.token) {
-    //             appState.setUser(response.user, response.token);
-    //             await this.connectSocket();
-    //             return { success: true, user: response.user };
-    //         } else {
-    //             throw new Error('Invalid response from server');
-    //         }
-    //     } catch (error) {
-    //         const errorMessage = error.message || ERROR_MESSAGES.UNKNOWN_ERROR;
-    //         throw new Error(errorMessage);
-    //     }
-    // }
-
-    // async login(credentials) {
-    //     try {
-    //         // Validate input
-    //         if (!validatePhone(credentials.phone_number)) {
-    //             throw new Error('Please enter a valid phone number');
-    //         }
-    //         if (!validatePassword(credentials.password)) {
-    //             throw new Error('Password must be at least 8 characters long');
-    //         }
-
-    //         const response = await apiClient.login({
-    //             phone_number: credentials.phone_number.trim(),
-    //             password_hash: credentials.password
-    //         });
-    //         console.log(response);
-
-    //         if (response.success) {
-    //             appState.setUser(response.user, response.Token);
-    //             await this.connectSocket();
-    //             return { success: true, user: response.user };
-    //         } else {
-    //             throw new Error('Invalid phone number or password');
-    //         }
-    //     } catch (error) {
-    //         const errorMessage = error.message || ERROR_MESSAGES.INVALID_CREDENTIALS;
-    //         throw new Error(errorMessage);
-    //     }
-    // }
     async register(userData) {
         try {
             const validationError = this.validateRegistrationData(userData);
@@ -138,8 +83,7 @@ class AuthService {
             });
             
             if (response.user && response.Token) {
-                console.log('response',response.user,response.Token)
-                appState.setUser(response.user, response.Token); //----------------------------
+                appState.setUser(response.user, response.Token); 
                 setStorage(STORAGE_KEYS.USER_DATA, response.user);
                 setAuthToken(response.Token);
                 await this.connectSocket();

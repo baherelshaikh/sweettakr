@@ -94,7 +94,6 @@ class MessageRenderer {
         messageDiv.dataset.messageId = message.id;
 
         const content = this.createMessageContent(message);
-        // console.log("content",content)
         messageDiv.appendChild(content);
 
         return messageDiv;
@@ -339,11 +338,9 @@ class MessageRenderer {
         const typingUsers = appState.getTypingUsers(chatId);
         const currentUser = localStorage.getItem('sweettakr_user_data') ? JSON.parse(localStorage.getItem('sweettakr_user_data')) : null;
         currentUser.user_id = parseInt(currentUser.user_id)
-        // console.log("urrentUser?.user_id", currentUser.user_id)
 
         // Filter out current user
         const otherTypingUsers = typingUsers.filter(userId => userId !== currentUser?.user_id);
-        console.log("otherTypingUsers", otherTypingUsers)
         
         if (otherTypingUsers.length > 0) {
             const indicator = this.createTypingIndicator(otherTypingUsers);
@@ -359,7 +356,6 @@ class MessageRenderer {
         let typingText;
         if (typingUserIds.length === 1) {
             const user = appState.getUser(typingUserIds[0]);
-            console.log("user",user)
             const userName = user ? userService.getDisplayName(user) : 'Someone';
             // typingText = `${userName} is typing...`;
             typingText = ``;

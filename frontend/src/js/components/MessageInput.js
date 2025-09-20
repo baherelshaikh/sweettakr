@@ -1,7 +1,7 @@
 import { chatService } from '../services/ChatService.js';
 import { mediaService } from '../services/MediaService.js';
 import { appState } from '../store/AppState.js';
-import { validateMessage, debounce } from '../utils/helpers.js';
+import { validateMessage, debounce, showToast } from '../utils/helpers.js';
 import { MESSAGE_TYPES, UI_CONSTANTS } from '../utils/constants.js';
 
 /**
@@ -24,6 +24,8 @@ class MessageInput {
         this.input = container.querySelector('#message-input');
         this.sendButton = container.querySelector('#send-btn');
         this.voiceButton = container.querySelector('#voice-record-btn');
+        this.attachButton = container.querySelector('#attachment-btn');
+        this.voiceCallButton = container.querySelector('#voice-call-btn');
         this.attachButton = container.querySelector('#attachment-btn');
 
         this.setupEventListeners();
@@ -107,7 +109,6 @@ class MessageInput {
             const participant = currentChat.members?currentChat.members.find(p => p.id !== parseInt(currentUser.user_id)): parseInt(currentChat.contactId) ;
             const participantId = participant? (participant.id? parseInt(participant.id) : participant) : null; 
             const metadata = { to: participantId || 'Group', sender: 'You' };
-            console.log('Metadata:', participantId);
 
             // Send message
             await chatService.sendMessage(currentChat.id, MESSAGE_TYPES.TEXT, message, metadata);
@@ -123,11 +124,14 @@ class MessageInput {
     }
 
     async handleVoiceRecording() {
-        if (!this.isRecording) {
-            await this.startVoiceRecording();
-        } else {
-            await this.stopVoiceRecording();
-        }
+        showToast("This feature will be availabe soon!")
+        
+        // Implementing this feature in next version
+        // if (!this.isRecording) {
+        //     await this.startVoiceRecording();
+        // } else {
+        //     await this.stopVoiceRecording();
+        // }
     }
 
     async startVoiceRecording() {
@@ -317,7 +321,7 @@ class MessageInput {
     }
 
     sendTypingIndicator() {
-        console.log("Message sent!");
+        // console.log("Message sent!");
     }
 
     updateInputState(enabled) {

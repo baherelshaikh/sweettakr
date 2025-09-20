@@ -31,7 +31,6 @@ class ApiClient {
         
         if (contentType && contentType.includes('application/json')) {
             data = await response.json();
-            console.log('Response data:', response);
         } else {
             data = await response.text();
         }
@@ -56,9 +55,16 @@ class ApiClient {
                 ...options
             };
             
-            const response = await fetch(url, config);
-            console.log(response)
-            return await this._handleResponse(response);
+            const response = await fetch(url, config).then(response => {
+                return response.json();
+            });
+
+            if(response.success === false){
+                throw createError(response.msg);
+            }else{
+                // return await this._handleResponse(response);
+                return response;
+            }
         } catch (error) {
             if (error instanceof TypeError && error.message.includes('fetch')) {
                 throw createError(ERROR_MESSAGES.NETWORK_ERROR, 'NETWORK_ERROR');
@@ -152,7 +158,6 @@ class ApiClient {
             url += `?${params.toString()}`;
         }
         const mes = await this.get(url);
-        console.log('mes:', mes)
         return mes;
     }
 
