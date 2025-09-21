@@ -224,10 +224,13 @@ input[type="tel"]:focus {
     text-overflow: ellipsis;
     display: flex;
     flex-grow: 1;
+    min-width: fit-content;
+    max-width: 10vh;
 }
 
 .chat-meta {
     display: flex;
+    overflow: hidden;
     align-items: center;
     justify-content: space-between;
     gap: var(--spacing-sm);

@@ -29,9 +29,6 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-app.use("/", (req, res) => {
-    res.status(200).send("<h1>✅ API is running...!</h1>")
-});
 
 app.use(express.json())
 // app.use(cookieParser(process.env.JWT_SECRET))
@@ -41,6 +38,9 @@ app.use("/api/v1/chats", chatRoutes);
 app.use("/api/v1/messages", messageRoutes);
 app.use("/api/v1/users", userRoutes)
 
+app.use("/", (req, res) => {
+    res.status(200).send("<h1>✅ API is running...!</h1>")
+});
 app.use(NotFoundError)
 app.use(errorHandlerMiddleware);
 
