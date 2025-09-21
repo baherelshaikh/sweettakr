@@ -6,12 +6,13 @@
 
 ### Current Features
 - **Text Messaging**: Send and receive text messages in real-time.
-- **Chats**: Create and manage chat conversations with multiple users.
+- **Chats**: Create and manage chat conversations with users.
 - **Message Receipts**: Track delivered and read statuses for messages.
 - **Secure Authentication**: JWT-based user authentication for safe access.
 - **PostgreSQL Backend**: Robust data management with a scalable database schema.
 
 ### Planned Features
+- *Group Chats*: Create and manage group conversations with multiple users.
 - *Media Sharing*: Share images and videos, securely stored and linked via the database.
 - *Recording Messages*: Send voice or video message recordings.
 - *Voice Calls*: Enable real-time voice communication.
